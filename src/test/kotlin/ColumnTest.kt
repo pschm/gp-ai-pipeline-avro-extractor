@@ -1,123 +1,135 @@
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 class ColumnTest {
 
-    @Test
-    fun applyShouldAlterState() {
-        val readRow = Column("name")
+    private lateinit var column: Column
 
-        val result = readRow.applyValue("")
-
-        assertEquals(ColumnType.STRING, result.type)
-        assertEquals(true, result.nullable)
+    @BeforeEach
+    internal fun setUp() {
+        column = Column(SCHEMA_NAME)
     }
 
-    @Test
-    fun double() {
-        val readRow = Column("name")
+    @Nested
+    inner class SingleValueTests {
 
-        val result = readRow.applyValue("124231.41324132412")
+        @Test
+        fun `applyValue should return nullable string when only value is empty`() {
+            val result = column.applyValue("")
 
-        assertEquals(ColumnType.DOUBLE, result.type)
-        assertEquals(false, result.nullable)
+            assertEquals(ColumnType.STRING, result.type)
+            assertEquals(true, result.nullable)
+        }
+
+        @Test
+        fun `applyValue should return non nullable double when only value is double`() {
+            val result = column.applyValue("124231.41324132412")
+
+            assertEquals(ColumnType.DOUBLE, result.type)
+            assertEquals(false, result.nullable)
+        }
+
+        @Test
+        fun `applyValue should return non nullable integer when only value is integer`() {
+            val result = column.applyValue("41324132412")
+
+            assertEquals(ColumnType.INTEGER, result.type)
+            assertEquals(false, result.nullable)
+        }
+
+        @Test
+        fun `applyValue should return non nullable integer when only value is string`() {
+            val result = column.applyValue("asdf134")
+
+            assertEquals(ColumnType.STRING, result.type)
+            assertEquals(false, result.nullable)
+        }
     }
 
-    @Test
-    fun int() {
-        val readRow = Column("name")
+    @Nested
+    inner class MixedNonNullTypes {
 
-        val result = readRow.applyValue("41324132412")
+        @Test
+        fun `applyValue should return non nullable string when first value is string and second not`() {
+            val first = column.applyValue("1324a")
+            val second = first.applyValue("1234")
 
-        assertEquals(ColumnType.INTEGER, result.type)
-        assertEquals(false, result.nullable)
+            assertEquals(ColumnType.STRING, second.type)
+            assertEquals(false, second.nullable)
+        }
+
+        @Test
+        fun `applyValue should return non nullable string when first value is double and second string`() {
+            val first = column.applyValue("1234.14")
+            val second = first.applyValue("14a")
+
+            assertEquals(ColumnType.STRING, second.type)
+            assertEquals(false, second.nullable)
+        }
+
+        @Test
+        fun `applyValue should return non nullable string when first value is integer and second string`() {
+            val first = column.applyValue("1234")
+            val second = first.applyValue("14a")
+
+            assertEquals(ColumnType.STRING, second.type)
+            assertEquals(false, second.nullable)
+        }
+
+
+        @Test
+        fun `applyValue should return non nullable double when first value is integer and second double`() {
+            val first = column.applyValue("1234")
+            val second = first.applyValue("143124.223")
+
+            assertEquals(ColumnType.DOUBLE, second.type)
+            assertEquals(false, second.nullable)
+        }
+
+        @Test
+        fun `applyValue should return non nullable double when first value is double and second integer`() {
+            val first = column.applyValue("1234.1324")
+            val second = first.applyValue("143124")
+
+            assertEquals(ColumnType.DOUBLE, second.type)
+            assertEquals(false, second.nullable)
+        }
     }
 
-    @Test
-    fun overw() {
-        val readRow = Column("name")
+    @Nested
+    inner class MixedNullTypes {
 
-        val first = readRow.applyValue("1324a")
-        val second = first.applyValue("1234")
+        @Test
+        fun `applyValue should return non nullable integer when first value is integer and second empty`() {
+            val first = column.applyValue("1234")
+            val second = first.applyValue("")
 
-        assertEquals(ColumnType.STRING, second.type)
-        assertEquals(false, second.nullable)
+            assertEquals(ColumnType.INTEGER, second.type)
+            assertEquals(true, second.nullable)
+        }
+
+        @Test
+        fun `applyValue should return nullable integer when first value is integer and second empty`() {
+            val first = column.applyValue("1234")
+            val second = first.applyValue("")
+
+            assertEquals(ColumnType.INTEGER, second.type)
+            assertEquals(true, second.nullable)
+        }
+
+        @Test
+        fun `applyValue should return non nullable integer when first value is empty and second integer`() {
+            val first = column.applyValue("")
+            val second = first.applyValue("1234")
+
+            assertEquals(ColumnType.INTEGER, second.type)
+            assertEquals(true, second.nullable)
+        }
     }
 
-    @Test
-    fun ovedrw() {
-        val readRow = Column("name")
-
-        val first = readRow.applyValue("1234.14")
-        val second = first.applyValue("14a")
-
-        assertEquals(ColumnType.STRING, second.type)
-        assertEquals(false, second.nullable)
-    }
-
-    @Test
-    fun ovedrasdfw() {
-        val readRow = Column("name")
-
-        val first = readRow.applyValue("1234")
-        val second = first.applyValue("14a")
-
-        assertEquals(ColumnType.STRING, second.type)
-        assertEquals(false, second.nullable)
-    }
-
-    @Test
-    fun ovedrasdfaw() {
-        val readRow = Column("name")
-
-        val first = readRow.applyValue("1234")
-        val second = first.applyValue("")
-
-        assertEquals(ColumnType.INTEGER, second.type)
-        assertEquals(true, second.nullable)
-    }
-
-    @Test
-    fun ovedraw() {
-        val readRow = Column("name")
-
-        val first = readRow.applyValue("1234")
-        val second = first.applyValue("143124.223")
-
-        assertEquals(ColumnType.DOUBLE, second.type)
-        assertEquals(false, second.nullable)
-    }
-
-    @Test
-    fun oveasdfdraw() {
-        val readRow = Column("name")
-
-        val first = readRow.applyValue("1234.1324")
-        val second = first.applyValue("143124")
-
-        assertEquals(ColumnType.DOUBLE, second.type)
-        assertEquals(false, second.nullable)
-    }
-
-    @Test
-    fun dsf() {
-        val readRow = Column("name")
-
-        val first = readRow.applyValue("1234")
-        val second = first.applyValue("")
-
-        assertEquals(ColumnType.INTEGER, second.type)
-        assertEquals(true, second.nullable)
-    }
-
-    @Test
-    fun afasdf() {
-        val readRow = Column("name")
-
-        val first = readRow.applyValue("")
-        val second = first.applyValue("1234")
-
-        assertEquals(ColumnType.INTEGER, second.type)
-        assertEquals(true, second.nullable)
+    companion object {
+        private const val SCHEMA_NAME = "some name"
     }
 }
