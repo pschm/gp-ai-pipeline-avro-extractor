@@ -8,23 +8,15 @@ fun main() {
     val file = File("data/monthly_flights.csv")
     val rows = csvReader().readAllWithHeader(file)
 
-    val analyzedColumns = analyzeData(rows)
+    val analyzedColumns = DataAnalyzer().analyze(rows)
 
     val schema = SchemaCreator("raw_data", analyzedColumns).create()
 
-    val writer = BufferedWriter(FileWriter("out.avsc"))
+    val writer = BufferedWriter(FileWriter("raw_data_schema.avsc"))
 
     writer.write(schema.toString())
     writer.close()
+
+    println("created: raw_data_schema")
 }
 
-private fun analyzeData(
-    rows: List<Map<String, String>>
-): List<Column> {
-    val columns = rows.first().keys
-        .map { Column(it) }
-
-    return rows.fold(columns) { givenRows, data ->
-        (givenRows zip data.values).map { it.first.applyValue(it.second) }
-    }
-}

@@ -49,6 +49,33 @@ class ColumnTest {
     }
 
     @Nested
+    inner class MultipleValuesTests {
+        @Test
+        fun `applyValue should return non nullable string when only non null value values are given`() {
+            val result = column.applyValue("asdf134")
+                .applyValue("asiohfg3")
+                .applyValue("dfg24t")
+                .applyValue("w4zh")
+                .applyValue("3456gh.34")
+
+            assertEquals(ColumnType.STRING, result.type)
+            assertEquals(false, result.nullable)
+        }
+
+        @Test
+        fun `applyValue should return non nullable double when only non null value values are given`() {
+            val result = column.applyValue("34.12")
+                .applyValue("345.2")
+                .applyValue("23452.1")
+                .applyValue("462345.12")
+                .applyValue("3456.34")
+
+            assertEquals(ColumnType.DOUBLE, result.type)
+            assertEquals(false, result.nullable)
+        }
+    }
+
+    @Nested
     inner class MixedNonNullTypes {
 
         @Test
@@ -125,6 +152,24 @@ class ColumnTest {
             val second = first.applyValue("1234")
 
             assertEquals(ColumnType.INTEGER, second.type)
+            assertEquals(true, second.nullable)
+        }
+
+        @Test
+        fun `applyValue should return non nullable double when first value is empty and second double`() {
+            val first = column.applyValue("")
+            val second = first.applyValue("123.32")
+
+            assertEquals(ColumnType.DOUBLE, second.type)
+            assertEquals(true, second.nullable)
+        }
+
+        @Test
+        fun `applyValue should return nullable double when first value is double and second empty`() {
+            val first = column.applyValue("70.37")
+            val second = first.applyValue("")
+
+            assertEquals(ColumnType.DOUBLE, second.type)
             assertEquals(true, second.nullable)
         }
     }

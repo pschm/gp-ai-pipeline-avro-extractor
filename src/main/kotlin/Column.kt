@@ -8,14 +8,17 @@ data class Column(
         get() = _columnHasNullValues
 
     val type: ColumnType
-        get() = _type ?: ColumnType.STRING
+        get() {
+            if (nullable && _type == ColumnType.INTEGER) return ColumnType.DOUBLE
+            return _type ?: ColumnType.STRING
+        }
 
     fun applyValue(value: String): Column {
-        val isBlank = value.isBlank()
+        val isBlank = value.isBlank() || value == "NaN" || value == "Null"
 
         val newType = when {
             isBlank -> _type
-            isTypeString() -> ColumnType.STRING
+            isAlreadyString() -> ColumnType.STRING
             isDouble(value) -> ColumnType.DOUBLE
             isInteger(value) && isTypeDouble() -> ColumnType.DOUBLE
             isInteger(value) -> ColumnType.INTEGER
@@ -30,7 +33,7 @@ data class Column(
 
     private fun isTypeDouble() = _type == ColumnType.DOUBLE
 
-    private fun isTypeString() = _type == ColumnType.STRING
+    private fun isAlreadyString() = _type == ColumnType.STRING
 
     private fun isDouble(value: String) = value.matches(Regex("[-]?[0-9]+\\.[0-9]+"))
 
