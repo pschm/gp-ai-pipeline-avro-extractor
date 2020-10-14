@@ -129,29 +129,20 @@ class ColumnTest {
     inner class MixedNullTypes {
 
         @Test
-        fun `applyValue should return non nullable integer when first value is integer and second empty`() {
+        fun `applyValue should return nullable double when first value is integer and second empty`() {
             val first = column.applyValue("1234")
             val second = first.applyValue("")
 
-            assertEquals(ColumnType.INTEGER, second.type)
+            assertEquals(ColumnType.DOUBLE, second.type)
             assertEquals(true, second.nullable)
         }
 
         @Test
-        fun `applyValue should return nullable integer when first value is integer and second empty`() {
-            val first = column.applyValue("1234")
-            val second = first.applyValue("")
-
-            assertEquals(ColumnType.INTEGER, second.type)
-            assertEquals(true, second.nullable)
-        }
-
-        @Test
-        fun `applyValue should return non nullable integer when first value is empty and second integer`() {
+        fun `applyValue should return nullable double when first value is empty and second integer`() {
             val first = column.applyValue("")
             val second = first.applyValue("1234")
 
-            assertEquals(ColumnType.INTEGER, second.type)
+            assertEquals(ColumnType.DOUBLE, second.type)
             assertEquals(true, second.nullable)
         }
 
