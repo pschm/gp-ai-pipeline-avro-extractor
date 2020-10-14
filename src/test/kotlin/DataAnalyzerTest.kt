@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test
 class DataAnalyzerTest {
 
     @Test
-    fun name() {
+    fun `DataAnalyzer should convert given data correctly`() {
 
         val list = listOf(
             mapOf(Pair("colName", "70.37"), Pair("colName2", "456")),
